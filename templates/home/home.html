@@ -1,0 +1,24 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="row">
+	{% for serv in serv %}
+    <div class="col-lg-4">
+        <img class="thumbnail" src="{{serv.image.url}}" alt="">
+        <div class="box-element product">
+            <p><h4><strong>{{serv.category}}</strong></h4><h5><small>{{serv.cost_domain}}</small></h5></p>
+            <hr>
+            <button class="btn btn-outline-secondary add-btn">Explore</button> 
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<h2>You are not logged in</h2>
+<a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock content %}
+
+

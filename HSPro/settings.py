@@ -72,6 +72,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'HSPro.wsgi.application'
 
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

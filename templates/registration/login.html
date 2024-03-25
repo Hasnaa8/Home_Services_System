@@ -1,0 +1,12 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<form method="POST" novalidate>
+	{% csrf_token %}
+  	{{ form }}
+  	<button type="submit">Log In</button>
+	<p>Don't have an account? <a href="{% url 'signup' %}">Register</a></p>
+</form>
+{% endblock content %}
