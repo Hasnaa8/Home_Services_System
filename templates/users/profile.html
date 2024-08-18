@@ -1,0 +1,100 @@
+{% extends 'services/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="h-100 gradient-custom-2">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-9 col-xl-7">
+          <div class="card" style="background-color: #fddde6">
+            <div class="rounded-top text-white d-flex flex-row" style="background-color: #cf71af; height:200px;">
+              <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+                {% if  user.profile.photo %}
+                <img src="{{ user.profile.photo.url }}"
+                alt="Generic placeholder image" class="h-100 img-fluid img-thumbnail mt-4 mb-2"
+                style="width: 150px; z-index: 1">
+                {% else %}
+                <img src="{% static "images\default.jfif" %}"
+                  alt="Generic placeholder image" class="h-100 img-fluid img-thumbnail mt-4 mb-2"
+                  style="width: 150px; z-index: 1">
+                {% endif %}
+              </div>
+              <div class="ms-3" style="margin-top: 130px;">
+                <h3>{{ user.username }}</h3>
+                <p class="test-muted">{{ user.email }}</p>
+              </div>
+            </div>
+            <div class="card-body p-4 text-black">
+              {% if user.profile.is_craftsman %}
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Description</p>
+                <div class="p-4 rounded-3" style="background-color: #f8f8ff;">
+                  <p class="font-italic mb-1">{{ user.profile.description }}</p>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Work Info</p>
+                <div class="p-4 rounded-3" style="background-color: #f8f8ff;">
+                  <p class="font-italic mb-1">I provide {{ user.profile.service.category }}'s service</p>
+                  <p class="font-italic mb-1">My work place in: Syria/{{ user.profile.city }}/{{ user.profile.work_address }}</p>
+                  <p class="font-italic mb-1">My worktime is: [{{ user.profile.work_from }}->{{ user.profile.work_to }}]</p>
+                  <p class="font-italic mb-1">My work price range is ({{ user.profile.price_from }}-{{ user.profile.price_to }})$</p>
+                </div>
+              </div>
+              {% endif %}
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Personal Info</p>
+                <div class="p-4 rounded-3" style="background-color: #f8f8ff;">
+                  <p class="font-italic mb-1">My name is: {{ user.profile.fname }} {{ user.profile.lname }}</p>
+                  <p class="font-italic mb-1">I live in: Syria/{{ user.profile.city }}/{{ user.profile.home_address }}</p>
+                  <p class="font-italic mb-1">My phone number is: {{ user.profile.phone }}</p>
+                  <p class="font-italic mb-1">My Birthday in: {{ user.profile.bdate }}</p>
+                  <p class="font-italic mb-1">I am: {{ user.profile.gender }}</p>
+                </div>
+              </div>
+              <!-- for providers 
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="lead fw-normal mb-0">Comments</p>
+                <p class="mb-0"><a href="#!" class="text-muted">Show all</a></p>
+              </div>
+              <div class="row g-2">
+                <div class="col mb-2">
+                  
+                </div>
+                <div class="col mb-2">
+                
+                </div>
+              </div>
+              <div class="row g-2">
+                <div class="col">
+                
+                </div>
+                <div class="col">
+                  
+                </div>
+              </div>
+        -->
+        {% if user.pk == request.user.pk %}
+        <a href="{% url 'edit_profile' %}">            
+          <input class="btn-outline-dark btn " type="submit" value="Edit profile" />
+        </a>
+        {% else %}
+        {% if user.profile.is_craftsman %}
+        <a href="{% url 'booking_user' pk=user.pk %}">            
+          <input class="btn-outline-dark btn " type="submit" value="Book" />
+        </a>
+        {% endif %}
+        {% endif %}
+      </div>
+            
+        </div>
+    
+        </div>
+      
+    </div>
+      
+    </div>
+    
+  </section>
+
+{% endblock %}

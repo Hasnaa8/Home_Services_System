@@ -1,0 +1,51 @@
+{% extends 'services/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+            <h2 class="h3 mb-4 page-title">Settings</h2>
+            <div class="my-4">
+                <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#settings" role="tab" aria-controls="profile" aria-selected="false">Account Settings</a>
+                    </li>
+                </ul>
+                <div class="list-group mb-5 shadow">
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <a class="nav-link active"  style="color:black;" href="{% url 'password_change' %}" >
+                            <div class="col">
+                                <strong class="mb-2">Change Password</strong>
+                                <p class="text-muted mb-0">if you want to change your password of this account!</p>
+                            </div>
+                        </a>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <a class="nav-link active"  style="color:black;" href="{% url 'email_change' %}" >
+                                <strong class="mb-2">Change Email</strong>
+                                <p class="text-muted mb-0">if you want to change your email of this account!</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group-item">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <a class="nav-link active"  style="color:black;" href="{% url 'delete_account' %}" >
+                                <strong class="mb-2">Delete Account</strong>
+                                <p class="text-muted mb-0">if you want to delete your account!</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

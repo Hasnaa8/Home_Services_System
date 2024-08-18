@@ -1,0 +1,26 @@
+{% extends 'services/base.html' %}
+{% load static %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="row">
+	{% for serv in serv %}
+    <div class="col-lg-4">
+        
+        <img class="thumbnail" src="{{serv.image.url}}" alt="">
+        <a href="{% url 'providers_list' serv.pk %}">
+        <div class="box-element product">
+            <h4><strong>{{serv.category}}</strong></h4>
+        </div></a>
+        
+    </div>
+    
+    {% endfor %}
+</div>
+{% else %}
+<h2>You are not logged in</h2>
+<a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock content %}
+
+

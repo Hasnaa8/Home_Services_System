@@ -1,0 +1,49 @@
+{% extends 'services/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="h-100 gradient-custom-2">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-9 col-xl-7">
+          <div class="card" style="background-color: #fddde6">
+              <div class="ms-3" style="margin-top: 130px;">
+                <h3>{{ booking.home_address }}</h3>
+                <p class="test-muted">{{ booking.date }} - {{ booking.time }}</p>
+              </div>
+          <div class="card-body p-4 text-black">
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Customer</p>
+                <div class="col-lg-4">
+                    <a href="{% url 'profile_pk' pk=booking.customer.pk %}">
+                        <img class="thumbnail" src="{{booking.customer.profile.photo.url}}" alt="">
+                    </a>
+                    <div class="box-element product">
+                        <h4><strong>{{booking.customer.username}}</strong></h4>
+                        <p class="text-muted">{{booking.customer.profile.fname}} {{booking.customer.profile.lname}}</p>
+                    </div>
+                </div>
+              </div>
+              {% if booking.status != "completed" %}
+              <a href="{% url 'delete_appointment' pk=booking.pk %}">            
+                <input class="btn-outline-dark btn " type="submit" value="Delete" />
+              </a>
+              {% endif %}
+              {% if booking.status == "pending" %}
+              <a href="{% url 'confirm_appointment' pk=booking.pk %}">            
+                <input class="btn-outline-dark btn " type="submit" value="Confirm" />
+              </a>
+              {% elif booking.status == "confirmed" %}
+              <a href="{% url 'complete_appointment' pk=booking.pk %}">            
+                <input class="btn-outline-dark btn " type="submit" value="Complete" />
+              </a>
+              {% endif %}
+          </div>            
+        </div>
+    </div>      
+</div>
+      
+</div>
+</section>
+
+{% endblock %}

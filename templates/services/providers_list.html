@@ -1,0 +1,32 @@
+{% extends 'services/base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="row">
+        {% if  providers %}
+        {% for provider in providers %}
+        <div class="col-lg-4">
+            <a href="{% url 'profile_pk' pk=provider.user.pk %}">
+                <img class="thumbnail" src="{{provider.user.profile.photo.url}}" alt="">
+            </a>
+            <div class="box-element product">
+                <h4><strong>{{provider.user.username}}</strong></h4>
+                <p class="text-muted">{{provider.user.profile.fname}} {{provider.user.profile.lname}}</p>
+                {% if provider.user != request.user %}
+                <hr>
+                <a class="btn" href="{% url 'users:add_to_favourite' provider.pk %}"><img style="width:60px; height:50px;" src="{% static "images/heart.png" %}"></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% else %}
+        <div class="content-section">
+            <h2>There is no providers yet!</h2>
+        </div>
+        {% endif %}
+</div>
+{% endblock content %}
+
+

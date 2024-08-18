@@ -1,0 +1,11 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}    
+    {{ form }}     
+    <input type="submit" value="Save Changes" name="save" />
+    <input type="reset" value="Cancel" name="cancel" />
+    <br/>
+</form>
+{% endblock content %}
