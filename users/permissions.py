@@ -15,6 +15,3 @@ class IsAuthenticatedAndIsCraftsman(permissions.BasePermission):
                 and request.user.profile.is_craftsman)
 
 
-class IsCutomerOrProvider(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.customer == request.user.profile or obj.provider == request.user.profile
