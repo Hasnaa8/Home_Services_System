@@ -45,7 +45,7 @@ class BookingView(APIView):
 
 
 class EditBookingView(APIView):
-    permission_classes = [IsCutomerOrProvider]  # Only authenticated users can edit bookings
+    # permission_classes = [IsCutomerOrProvider]  # Only authenticated users can edit bookings
 
     def get_object(self, pk):
         try:
@@ -151,7 +151,7 @@ def my_schedule_completed(request):
         return Response(serializer.data)
 
 class BookingConfirmView(APIView):
-    permission_classes = [IsAuthenticatedAndIsCraftsman, IsCutomerOrProvider] 
+    permission_classes = [IsAuthenticatedAndIsCraftsman] 
     def put(self, request, pk):
         booking = Booking.objects.get(pk=pk)
         if not booking:
@@ -169,7 +169,7 @@ class BookingConfirmView(APIView):
         return Response({"message": "Appointment confirmed successfully."})
 
 class BookingCompleteView(APIView):
-    permission_classes = [IsAuthenticatedAndIsCraftsman, IsCutomerOrProvider]  
+    permission_classes = [IsAuthenticatedAndIsCraftsman]  
     def put(self, request, pk):
         booking = Booking.objects.get(pk=pk)
         if not booking:
