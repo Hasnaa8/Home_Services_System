@@ -72,6 +72,10 @@ urlpatterns = [
 
     path('edit_fav_list/<int:pk>/' ,user_views.edit_fav_list, name='edit_fav_list'),
     
+    path('review_profile/<int:pk>/' ,user_views.ReviewView.as_view(), name='review_profile'),
+
+    path('edit_review/<int:pk>/' ,user_views.EditReviewView.as_view(), name='edit_review'),
+    
     path('users', include('users.urls')),
     
     path('', include('services.urls')),

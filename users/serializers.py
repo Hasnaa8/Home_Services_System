@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import User
+from django.db.models import Count, Avg
+
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -21,17 +23,34 @@ class LoginSerializer(serializers.Serializer):
 
 class CustomerProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Nested serializer to include user details
+    num_reviews = serializers.SerializerMethodField(read_only=True)
+    average_rating = serializers.SerializerMethodField(read_only=True)
 
+
+     
+    def get_num_reviews(self, obj):
+        return Review.objects.filter(rev_profile=obj).count()
+
+    def get_average_rating(self, obj):
+        reviews = Review.objects.filter(rev_profile=obj)
+        if reviews.exists():
+            average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+            return round(average_rating, 2)
+        return None
+    
     class Meta:
         model = Profile
         fields = ['user','pk',  'fname', 'lname', 'photo', 'bdate', 'gender'
-                  , 'city', 'home_address', 'phone']
+                  , 'city', 'home_address', 'phone', 'is_craftsman' 
+                  , 'num_reviews', 'average_rating']
 
 
 class ProviderProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Nested serializer to include user details
     is_fav = serializers.SerializerMethodField(read_only=True)
     my_account = serializers.SerializerMethodField(read_only=True)
+    num_reviews = serializers.SerializerMethodField(read_only=True)
+    average_rating = serializers.SerializerMethodField(read_only=True)
 
     def get_is_fav(self, obj):
         request = self.context.get('request')
@@ -53,13 +72,23 @@ class ProviderProfileSerializer(serializers.ModelSerializer):
         else :
             return False
     
+    def get_num_reviews(self, obj):
+        return Review.objects.filter(rev_profile=obj).count()
+
+    def get_average_rating(self, obj):
+        reviews = Review.objects.filter(rev_profile=obj)
+        if reviews.exists():
+            average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+            return round(average_rating, 2)
+        return None
 
     class Meta:
         model = Profile
         fields = ('user','pk',  'fname', 'lname', 'photo', 'bdate', 'gender'
                   , 'city', 'home_address', 'phone', 'is_craftsman', 
                   'service', 'description', 'work_from',
-                  'work_to', 'price_from', 'price_to', 'work_address', 'is_fav', 'my_account')
+                  'work_to', 'price_from', 'price_to', 'work_address', 
+                  'is_fav', 'my_account', 'num_reviews', 'average_rating')
 
 class PersonalInfoSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Nested serializer to include user details
@@ -123,3 +152,8 @@ class FavSerializer(serializers.ModelSerializer):
                  'service', 'description', 'work_from',
                  'work_to', 'price_from', 'price_to', 'work_address',
                  'is_fav')
+        
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'

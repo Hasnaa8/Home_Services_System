@@ -9,7 +9,7 @@ from django.contrib.auth.forms import PasswordChangeForm # type: ignore
 from django.contrib.auth import update_session_auth_hash # type: ignore
 from .models import *
 from bookings.models import *
-from rest_framework.decorators import api_view 
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response 
 from rest_framework.views import APIView 
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -22,7 +22,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from .permissions import *
 from .serializers import *
-
+from django.db.models import Count, Avg
+from rest_framework.permissions import *
 
 # register view - create user - create token
 class RegisterView(APIView):
@@ -81,11 +82,14 @@ class ProfileView(APIView):
             profile = get_object_or_404(Profile, pk=pk)
         else:
             profile = request.user.profile
+        
         if profile.is_craftsman:
             serializer = ProviderProfileSerializer(profile, context={'request': request})
         else :
             serializer = CustomerProfileSerializer(profile)
-        return Response(serializer.data)
+        revs_serializer = ReviewSerializer(Review.objects.filter(rev_profile=profile), many=True)
+
+        return Response({'profile':serializer.data, 'reviews':revs_serializer.data})
     
 # edit personal profile info 
 class PersonalInfoView(APIView):
@@ -184,6 +188,7 @@ class DeleteUserView(generics.GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class FavView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
         favs = Fav.objects.filter(profile=user.profile)
@@ -192,11 +197,13 @@ class FavView(APIView):
         return Response(serialized_profiles.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def edit_fav_list(request, pk):
+    
     user = request.user
     fav_profile = Profile.objects.get(pk=pk)
-    if user == fav_profile :
-        Response({'detail': 'Cannot add/delete yourself to/from favourites'}, status=status.HTTP_400_BAD_REQUEST)
+    if user.profile == fav_profile :
+        return Response({'detail': 'Cannot add/delete yourself to/from favourites'}, status=status.HTTP_400_BAD_REQUEST)
     
     if fav_profile.is_craftsman:
         fav, created = Fav.objects.get_or_create(profile=user.profile, fav_profile=fav_profile)
@@ -207,3 +214,71 @@ def edit_fav_list(request, pk):
             return Response({'detail': 'User removed from favourites'}, status=status.HTTP_204_NO_CONTENT)
     else :
         return Response({'detail': 'Cannot add normal user to favourite'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ReviewView(APIView):
+    #user has that account and craftsman
+    permission_classes = [IsAuthenticated]  # Require authentication for profile update
+    # authentication_classes = [TokenAuthentication]
+
+    def post(self, request, pk=None):
+        if pk:
+            user = request.user
+            rev_profile = Profile.objects.get(pk=pk)
+        
+            if user.profile == rev_profile :
+                return Response({'detail': 'Cannot review yourself !!!'}, status=status.HTTP_400_BAD_REQUEST)
+            if Review.objects.filter(profile=user.profile, rev_profile=rev_profile).count():
+                return Response({'detail': 'Cannot review this profile more than 1, update your present review!!!'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer = ReviewSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(profile=request.user.profile,
+                                profile_username=request.user.username,
+                                profile_fname=request.user.profile.fname,
+                                profile_lname=request.user.profile.lname,
+                                rev_profile=rev_profile, 
+                                rev_profile_username=rev_profile.user.username,
+                                rev_profile_fname=rev_profile.fname,
+                                rev_profile_lname=rev_profile.lname 
+                                ) 
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+
+
+class EditReviewView(APIView):
+    # permission_classes = [IsCutomerOrProvider]  # Only authenticated users can edit bookings
+
+    def get_object(self, pk):
+        try:
+            return Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return None
+    
+    def get(self, request, pk=None):
+        review = self.get_object(pk)
+        if review:
+            serializer = ReviewSerializer(review)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def put(self, request, pk):
+        review = self.get_object(pk)
+        if not review:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if review.profile == request.user.profile:
+            serializer = ReviewSerializer(review, data=request.data, partial=True)
+            if serializer.is_valid():            
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Only reviewer can edit this review."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk=None):
+        review = self.get_object(pk)
+        if review:
+            if review.profile == request.user.profile or review.rev_profile == request.user.profile:
+                review.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"error": "Only reviewer&reviewee can delete this review."}, status=status.HTTP_400_BAD_REQUEST)
