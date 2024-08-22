@@ -113,8 +113,8 @@ class Review(models.Model):
 
     likings = models.IntegerField(default=0)
     hatings = models.IntegerField(default=0)
-    liking_users = models.ManyToManyField("Profile", related_name='liking_profiles')
-    hating_users = models.ManyToManyField("Profile", related_name='hating_profiles')
+    liking_users = models.ManyToManyField("Profile", related_name='liking_profiles', null=True)
+    hating_users = models.ManyToManyField("Profile", related_name='hating_profiles', null=True)
 
     def save(self, *args, **kwargs):
         if not self.id:

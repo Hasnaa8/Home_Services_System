@@ -276,26 +276,28 @@ class EditReviewView(APIView):
         return Response({"error": "Only reviewer can edit this review."}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk=None):
+        if not pk:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         review = self.get_object(pk)
         if review:
             if review.profile == request.user.profile:
                 review.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             if review.rev_profile == request.user.profile:
-                if review.hatings > review.likings:
+                if review.hatings > review.likings + 10:
                     review.delete()
                     return Response(status=status.HTTP_204_NO_CONTENT)
                 else:
-                    return Response({'message':'You cannot delete this review because it is common!'})
-
-        return Response({"error": "Only reviewer&reviewee can delete this review."}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'message':'You cannot delete this review because it is important!'})
+            return Response({"error": "Only reviewer&reviewee can delete this review."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def liking_management(request, pk, like):
     if pk:
         review = Review.objects.get(pk=pk)
         if review:
-            if like:
+            if like == 'like':
                 if request.user.profile in review.liking_users.all():
                     review.liking_users.remove(request.user.profile)
                     review.likings = review.likings - 1
@@ -306,7 +308,7 @@ def liking_management(request, pk, like):
                     review.likings = review.likings + 1
                     review.save()
                     return Response({'message':'liked'})
-            else:
+            elif like == 'hate':
                 if request.user.profile in review.hating_users.all():
                     review.hating_users.remove(request.user.profile)
                     review.hatings = review.hatings - 1
@@ -317,6 +319,8 @@ def liking_management(request, pk, like):
                     review.hatings = review.hatings + 1
                     review.save()
                     return Response({'message':'hated'})
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 

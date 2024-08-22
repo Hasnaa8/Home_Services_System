@@ -76,7 +76,7 @@ urlpatterns = [
 
     path('edit_review/<int:pk>/' ,user_views.EditReviewView.as_view(), name='edit_review'),
     
-    path('reviews/<int:pk>/<int:like>' ,user_views.liking_management, name='like_review'),
+    path('review/<int:pk>/<str:like>' ,user_views.liking_management, name='like_review'),
     
     
     path('users', include('users.urls')),
