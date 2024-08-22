@@ -111,6 +111,11 @@ class Review(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    likings = models.IntegerField(default=0)
+    hatings = models.IntegerField(default=0)
+    liking_users = models.ManyToManyField("Profile", related_name='liking_profiles')
+    hating_users = models.ManyToManyField("Profile", related_name='hating_profiles')
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.created = timezone.now()
@@ -123,7 +128,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.profile.user.username} reviewed {self.rev_profile.user.username}"
-    
     
 
 @receiver(post_save, sender=User)

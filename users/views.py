@@ -278,7 +278,46 @@ class EditReviewView(APIView):
     def delete(self, request, pk=None):
         review = self.get_object(pk)
         if review:
-            if review.profile == request.user.profile or review.rev_profile == request.user.profile:
+            if review.profile == request.user.profile:
                 review.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            if review.rev_profile == request.user.profile:
+                if review.hatings > review.likings:
+                    review.delete()
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+                else:
+                    return Response({'message':'You cannot delete this review because it is common!'})
+
         return Response({"error": "Only reviewer&reviewee can delete this review."}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def liking_management(request, pk, like):
+    if pk:
+        review = Review.objects.get(pk=pk)
+        if review:
+            if like:
+                if request.user.profile in review.liking_users.all():
+                    review.liking_users.remove(request.user.profile)
+                    review.likings = review.likings - 1
+                    review.save()
+                    return Response({'message':'unliked'})
+                else:
+                    review.liking_users.add(request.user.profile)
+                    review.likings = review.likings + 1
+                    review.save()
+                    return Response({'message':'liked'})
+            else:
+                if request.user.profile in review.hating_users.all():
+                    review.hating_users.remove(request.user.profile)
+                    review.hatings = review.hatings - 1
+                    review.save()
+                    return Response({'message':'unhated'})
+                else:
+                    review.hating_users.add(request.user.profile)
+                    review.hatings = review.hatings + 1
+                    review.save()
+                    return Response({'message':'hated'})
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    return Response(status=status.HTTP_404_NOT_FOUND)
