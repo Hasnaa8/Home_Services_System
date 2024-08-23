@@ -154,6 +154,28 @@ class FavSerializer(serializers.ModelSerializer):
                  'is_fav')
         
 class ReviewSerializer(serializers.ModelSerializer):
+    liked = serializers.SerializerMethodField(read_only=True)
+    hated = serializers.SerializerMethodField(read_only=True)
+    
+    def get_liked(self, instance):
+        request = self.context['request']
+        if request.user.is_authenticated:
+            return request.user.profile in instance.liking_users.all()
+        else:
+            return False
+        
+    def get_hated(self, instance):
+        request = self.context['request']
+        if request.user.is_authenticated:
+            return request.user.profile in instance.hating_users.all()
+        else:
+            return False
+    
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ('profile', 'rev_profile', 'profile_username',
+                  'profile_fname', 'profile_lname', 'rev_profile_username',
+                  'rev_profile_fname', 'rev_profile_lname', 
+                  'rating', 'comment', 'created', 'modified',
+                  'likings', 'hatings', 'liking_users', 'hating_users',
+                  'liked', 'hated')

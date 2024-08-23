@@ -87,7 +87,7 @@ class ProfileView(APIView):
             serializer = ProviderProfileSerializer(profile, context={'request': request})
         else :
             serializer = CustomerProfileSerializer(profile)
-        revs_serializer = ReviewSerializer(Review.objects.filter(rev_profile=profile), many=True)
+        revs_serializer = ReviewSerializer(Review.objects.filter(rev_profile=profile),context={"request":request}, many=True)
 
         return Response({'profile':serializer.data, 'reviews':revs_serializer.data})
     
@@ -230,7 +230,7 @@ class ReviewView(APIView):
             if Review.objects.filter(profile=user.profile, rev_profile=rev_profile).count():
                 return Response({'detail': 'Cannot review this profile more than 1, update your present review!!!'}, status=status.HTTP_400_BAD_REQUEST)
             
-            serializer = ReviewSerializer(data=request.data)
+            serializer = ReviewSerializer(data=request.data, context={"request":request})
             if serializer.is_valid():
                 serializer.save(profile=request.user.profile,
                                 profile_username=request.user.username,
